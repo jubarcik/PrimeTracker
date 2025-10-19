@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "118387063248",
+    "project_id": "primetracker-ec902",
+    "storage_bucket": "primetracker-ec902.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:118387063248:android:1c50c08edea0bdfe6921d5",
+        "android_client_info": {
+          "package_name": "org.primetracker.manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvglWUl7B3aNneq4vuWNpFPFOv1YUcW-o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<svg width="280" height="64" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" version="1.0">
+ <g class="layer" display="inline" id="g1" transform="matrix(1.34041,0,0,1.3395095,-0.30598694,-5.8453141)">
+  <title id="title1">Layer 1</title>
+  <g id="svg_5" transform="matrix(1 0 0 1 0 0) matrix(0.875 0 0 1 0.0626532 0)">
+   <g fill="currentColor" id="svg_1" transform="matrix(0.00578005,0,0,-0.00584404,0.469909,39.9905)">
+    <path d="m2390,5110c-832,-52 -1594,-521 -2030,-1250c-327,-548 -435,-1227 -294,-1860c187,-838 804,-1543 1610,-1838c791,-290 1677,-173 2358,311c588,417 964,1043 1061,1762c30,221 21,545 -21,785c-106,596 -439,1153 -921,1537c-501,399 -1118,592 -1763,553zm324,-915c517,-90 920,-484 1032,-1007c27,-126 25,-338 -5,-448c-99,-371 -416,-915 -901,-1545c-152,-197 -330,-415 -339,-415c-18,0 -362,437 -549,698c-383,534 -611,950 -693,1267c-19,72 -23,116 -23,220c0,321 124,621 354,859c189,196 426,323 688,370c105,19 329,20 436,1z" id="svg_2"/>
+    <path d="m2425,3594c-226,-32 -414,-195 -479,-414c-22,-73 -22,-227 0,-300c55,-186 196,-332 376,-391c92,-30 232,-32 323,-5c186,55 326,193 391,386c14,40 19,84 19,160c0,76 -5,120 -19,160c-64,190 -205,331 -384,384c-56,16 -177,27 -227,20z" id="svg_3"/>
+   </g>
+   <text fill="currentColor" font-family="Helvetica" font-size="33px" font-weight="bold" id="svg_4" stroke="currentColor" stroke-width="0" text-anchor="middle" x="134.24" xml:space="preserve" y="36.8">PrimeTracker</text>
+  </g>
+  <text fill="currentColor" font-family="Helvetica" font-size="10" font-weight="bold" id="svg_7" stroke="currentColor" stroke-width="0" text-anchor="middle" textLength="0" word-spacing="0" x="104" xml:space="preserve" y="49.66">TRACKER DEVELOPMENT</text>
+ </g>
+</svg>

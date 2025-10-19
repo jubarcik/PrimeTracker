@@ -83,4 +83,6 @@ Reiniciar o Traccar
 ```
 service traccar restart
 ```
-
+```
+service traccar status
+```

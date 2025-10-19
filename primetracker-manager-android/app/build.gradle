@@ -1,0 +1,120 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+}
+
+// 🔧 Função genérica para ler um valor do strings.xml
+def getStringFromStringsXml(String tagName) {
+    def stringsFile = file("src/main/res/values/strings.xml")
+    if (stringsFile.exists()) {
+        def matcher = stringsFile.getText('UTF-8') =~ /<string name="${tagName}">(.*?)<\/string>/
+        if (matcher) {
+            return matcher[0][1].trim()
+        }
+    }
+    return "" // Retorno padrão se não encontrar
+}
+
+// 🔧 Lê automaticamente nome e versão do XML
+def appNameFromXml = getStringFromStringsXml("app_name") ?: "PrimeTracker"
+def versionNameFromXml = getStringFromStringsXml("app_version") ?: "1.0.0"
+
+android {
+    namespace 'org.primetracker.manager'
+    compileSdk 36 // ✅ novo formato (sem 'Version')
+
+    defaultConfig {
+        applicationId 'org.primetracker.manager'
+        minSdk 28          // ✅ substitui minSdkVersion
+        targetSdk 34       // ✅ substitui targetSdkVersion
+        versionCode 40
+        versionName versionNameFromXml
+        multiDexEnabled true
+    }
+
+    buildFeatures {
+        flavorDimensions = ['default']
+    }
+
+    productFlavors {
+        regular {
+            dimension 'default'
+            isDefault = true
+            ext.enableCrashlytics = false
+        }
+        google {
+            dimension 'default'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    // 📦 Renomeia o APK/AAB automaticamente com base no XML
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def buildType = variant.buildType.name
+            def flavorName = variant.flavorName ? "-${variant.flavorName}" : ""
+            def extension = output.outputFile.name.endsWith(".aab") ? "aab" : "apk"
+            outputFileName = "${appNameFromXml} ${versionNameFromXml}${flavorName}-${buildType}.${extension}"
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4'
+    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation 'androidx.biometric:biometric-ktx:1.2.0-alpha05'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    // 🔥 Firebase (versões alinhadas pelo BOM)
+    googleImplementation platform('com.google.firebase:firebase-bom:34.4.0')
+    googleImplementation 'com.google.firebase:firebase-analytics:23.0.0'
+    googleImplementation 'com.google.firebase:firebase-crashlytics:20.0.3'
+    googleImplementation 'com.google.firebase:firebase-messaging:25.0.1'
+}
+
+tasks.register('copyFirebaseConfig', Copy) {
+    from '../../environment/google-services'
+    into '.'
+    include 'primetracker-manager-android.json'
+    rename('primetracker-manager-android.json', 'google-services.json')
+}
+
+afterEvaluate {
+    // 🧩 Ativa a cópia do google-services.json somente no flavor Google
+    tasks.matching { it.name.contains('Google') }.configureEach { task ->
+        if (task.name.contains('Regular')) {
+            task.enabled false
+        } else {
+            task.dependsOn copyFirebaseConfig
+        }
+    }
+
+    // ⚙️ Renomeia também o .aab final do flavor Google
+    tasks.matching { it.name.contains("Bundle") }.configureEach { task ->
+        task.doLast {
+            def bundleDir = file("${buildDir}/outputs/bundle/${task.name.contains('Google') ? 'google' : 'regular'}/release")
+            if (bundleDir.exists()) {
+                bundleDir.eachFile { file ->
+                    if (file.name.endsWith(".aab")) {
+                        def newName = "${appNameFromXml}-${versionNameFromXml}-google-release.aab"
+                        file.renameTo(new File(bundleDir, newName))
+                        println "✅ App Bundle renomeado para: ${newName}"
+                    }
+                }
+            }
+        }
+    }
+}

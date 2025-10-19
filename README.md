@@ -10,7 +10,11 @@ apt update
 apt install unzip mariadb-server
 sudo mysql_secure_installation
 ```
-
+```
+remove anonymous = Y
+dissalow root login = Y
+remove teste database = Y
+```
 Atualizando o usuário root e criando o banco de dados "traccar"
 ```
 mysql -u root --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES; CREATE DATABASE traccar;"

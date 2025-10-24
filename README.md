@@ -33,6 +33,9 @@ unzip traccar-linux-*.zip && ./traccar.run
 
 Criar o arquivo de configuração Traccar.xml
 ```
+
+cat > /opt/traccar/conf/traccar.xml << EOF
+
 <?xml version='1.0' encoding='UTF-8'?>
 
 <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
@@ -80,6 +83,8 @@ Criar o arquivo de configuração Traccar.xml
     </entry>
 
 </properties>
+
+EOF
 
 ```
 

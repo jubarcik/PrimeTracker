@@ -35,17 +35,16 @@ Criar o arquivo de configuração Traccar.xml
 ```
 
 cat > /opt/traccar/conf/traccar.xml << EOF
-
 <?xml version='1.0' encoding='UTF-8'?>
 
 <!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
 
 <properties>
-    <entry key="web.port">80</entry>
+
     <entry key="config.default">./conf/default.xml</entry>
 
     <entry key='database.driver'>com.mysql.cj.jdbc.Driver</entry>
-    <entry key='database.url'>jdbc:mysql://localhost/traccar?	serverTimezone=UTC&amp;useSSL=false&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8	&amp;sessionVariables=sql_mode=''</entry>
+    <entry key='database.url'>jdbc:mysql://localhost/traccar?serverTimezone=UTC&amp;useSSL=false&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8&amp;sessionVariables=sql_mode=''</entry>
     <entry key='database.user'>root</entry>
     <entry key='database.password'>root</entry>
 

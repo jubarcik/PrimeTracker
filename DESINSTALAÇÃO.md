@@ -1,8 +1,8 @@
-n Desinstalação Completa do Traccar + MariaDB
-1 Fazer backup do banco de dados
-'''
+## Desinstalação Completa do Traccar + MariaDB
+## Fazer backup do banco de dados
+´´´
 mysqldump -u root -p traccar > /root/backup-traccar-$(date +%F).sql
-'''
+´´´
 2nn Parar serviços
 systemctl stop traccar
 systemctl stop mariadb

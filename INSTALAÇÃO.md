@@ -29,6 +29,10 @@ Descampactar e Instalar o Traccar
 ```
 unzip traccar-linux-*.zip && ./traccar.run
 ```
+Start systemd service
+````
+sudo systemctl start traccar
+````
 
 
 Criar o arquivo de configuração Traccar.xml

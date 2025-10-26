@@ -14,14 +14,16 @@ apt install unzip mariadb-server
 ```
 sudo mysql_secure_installation
 ```
-```
-switch to unix_socket authentication [Y/n]
 
-change the root password? [Y/n] n
-remove anonymous = Y
-dissalow root login = Y
-remove teste database = Y
-```
+switch to unix_socket authentication [Y/n] n
+
+change the root password? [Y/n]= n
+
+remove anonymous [Y/n] = Y
+
+dissalow root login [Y/n] = Y
+
+remove teste database [Y/n] = Y
 
 ## Atualizando o usuário root e criando o banco de dados "traccar"
 

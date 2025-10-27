@@ -1,92 +1,53 @@
-## Video Realizando o Passo a Passo
-Link do Video: https://www.youtube.com/watch?v=C62BR5JMkUc
+# [Traccar](https://www.traccar.org)
 
+## Overview
 
-## Instalação Traccar com Mariadb
+Traccar is an open source GPS tracking system. This repository contains Java-based back-end service. It supports more than 200 GPS protocols and more than 2000 models of GPS tracking devices. Traccar can be used with any major SQL database system. It also provides easy to use [REST API](https://www.traccar.org/traccar-api/).
 
-Os comandos abaixo irão atualizar o apt e instalar o unzip e o mariadb-server
-```
-apt update
-apt install unzip mariadb-server
-sudo mysql_secure_installation
-```
-```
-remove anonymous = Y
-dissalow root login = Y
-remove teste database = Y
-```
-Atualizando o usuário root e criando o banco de dados "traccar"
-```
-mysql -u root --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION; FLUSH PRIVILEGES; CREATE DATABASE traccar;"
-```
+Other parts of Traccar solution include:
 
-Baixando o Traccar
-```
-wget https://www.traccar.org/download/traccar-linux-64-latest.zip
-```
+- [Traccar web app](https://github.com/traccar/traccar-web)
+- [Traccar Manager Android app](https://github.com/traccar/traccar-manager-android)
+- [Traccar Manager iOS app](https://github.com/traccar/traccar-manager-ios)
 
-Descampactar e Instalar o Traccar
-```
-unzip traccar-linux-*.zip && ./traccar.run
-```
+There is also a set of mobile apps that you can use for tracking mobile devices:
 
+- [Traccar Client Android app](https://github.com/traccar/traccar-client-android)
+- [Traccar Client iOS app](https://github.com/traccar/traccar-client-ios)
 
-Criar o arquivo de configuração Traccar.xml
-```
-<?xml version='1.0' encoding='UTF-8'?>
+## Features
 
-<!DOCTYPE properties SYSTEM 'http://java.sun.com/dtd/properties.dtd'>
+Some of the available features include:
 
-<properties>
-    <entry key="web.port">80</entry>
-    <entry key="config.default">./conf/default.xml</entry>
+- Real-time GPS tracking
+- Driver behaviour monitoring
+- Detailed and summary reports
+- Geofencing functionality
+- Alarms and notifications
+- Account and device management
+- Email and SMS support
 
-    <entry key='database.driver'>com.mysql.cj.jdbc.Driver</entry>
-    <entry key='database.url'>jdbc:mysql://localhost/traccar?	serverTimezone=UTC&amp;useSSL=false&amp;allowMultiQueries=true&amp;autoReconnect=true&amp;useUnicode=yes&amp;characterEncoding=UTF-8	&amp;sessionVariables=sql_mode=''</entry>
-    <entry key='database.user'>root</entry>
-    <entry key='database.password'>root</entry>
+## Build
 
-    <entry key="report.trip.minimalTripDuration">120</entry>
-    <entry key="report.trip.minimalTripDistance">400</entry>
-    <entry key="report.trip.minimalParkingDuration">300</entry>
-    <entry key='report.fastThreshold'>604800</entry>
+Please read [build from source documentation](https://www.traccar.org/build/) on the official website.
 
-    <entry key='processing.copyAttributes.enable'>true</entry>
-    <entry key='processing.copyAttributes'>ignition</entry>
+## Team
 
-    <entry key='web.attributes'>
-    	termsUrl=
-    	privacyUrl= </entry>
+- Anton Tananaev ([anton@traccar.org](mailto:anton@traccar.org))
+- Andrey Kunitsyn ([andrey@traccar.org](mailto:andrey@traccar.org))
 
-    <entry key='web.sanitize'>false</entry>
-	
-    <entry key='server.instantAcknowledgement'>true</entry>
+## License
 
-    <entry key='filter.skipAttributes.enable'>true</entry>
-    <entry key='filter.skipAttributes'>ignition,alarm,status,result,event</entry>
+    Apache License, Version 2.0
 
-    <entry key='event.motion.speedThreshold'>0.45</entry>
-    <entry key='filter.distance'>1</entry>
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    <entry key='notificator.types'>web,sms,telegram,firebase,command</entry>
-    <entry key='notificator.telegram.key'>-------</entry>
-    <entry key='notificator.telegram.chatId'>----</entry>
+        http://www.apache.org/licenses/LICENSE-2.0
 
-
-    <entry key='notificator.firebase.serviceAccount'>
-     {
-
-     }
-    </entry>
-
-</properties>
-
-```
-
-Reiniciar o Traccar
-```
-service traccar restart
-```
-```
-service traccar status
-```
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.

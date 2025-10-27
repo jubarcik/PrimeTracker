@@ -11,7 +11,6 @@ import UpdateController from './UpdateController';
 import TermsDialog from './common/components/TermsDialog';
 import Loader from './common/components/Loader';
 import fetchOrThrow from './common/util/fetchOrThrow';
-
 const useStyles = makeStyles()(() => ({
   page: {
     flexGrow: 1,
@@ -73,6 +72,7 @@ const App = () => {
     );
   }
   return (
+
     <>
       <SocketController />
       <CachingController />

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Rnd } from 'react-rnd';
 import { makeStyles } from 'tss-react/mui';
-
 import {
   Card,
   CardContent,
@@ -36,11 +35,12 @@ import AppleIcon from '@mui/icons-material/Apple';
 import MapIcon from '@mui/icons-material/Map';
 import NearMeIcon from '@mui/icons-material/NearMe';
 import StreetviewIcon from '@mui/icons-material/Streetview';
-
 import { useDeviceReadonly } from '../util/permissions';
 import { useTranslation } from './LocalizationProvider';
 import { devicesActions } from '../../store';
 import { geofencesActions } from '../../store';
+import { sessionActions } from '../../store';
+import ConfirmAnchorDialog from './ConfirmAnchorDialog';
 import { useCatch, useCatchCallback } from '../../reactHelper';
 import { useAttributePreference } from '../util/preferences';
 import { useRestriction } from '../util/permissions';
@@ -55,6 +55,9 @@ const useStyles = makeStyles()((theme, { desktopPadding }) => ({
   card: {
     pointerEvents: 'auto',
     width: theme.dimensions.popupMaxWidth,
+    borderRadius: theme.shape.borderRadius * 4, // 👈 bordas arredondadas (igual ao Dialog)
+    overflow: 'hidden',                         // 👈 evita que a imagem ou conteúdo "vaze" nas bordas
+    boxShadow: theme.shadows[4],                // 👈 sombra suave (opcional)
   },
   media: {
     height: theme.dimensions.popupImageHeight,
@@ -147,6 +150,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
   const [removing, setRemoving] = useState(false);
   const [AnchorGeofenceId, setAnchorGeofenceId] = useState(null);
   const { showSnackbar, SnackbarComponent } = useSnackbar();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
 
   /** Inicio do bloco de funçoes da Âncora*/
@@ -180,45 +184,78 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
   }, [device?.name]); // Dependência correta para evitar chamadas desnecessárias
 
 
-  const handleActivateAnchor = (async () => {  // Função para Ativar a âncora (adiciona a geofence)
+  const handleActivateAnchor = async () => {
+
+    // 👉 Ao invés de ativar direto, primeiro abre o diálogo
+    setDialogOpen(true);
+  };
+
+  const confirmActivateAnchor = async () => {
+    setDialogOpen(false);
+
+
     try {
+      //Buscar todas as geofences cadastradas
+      const response = await fetch('/api/geofences', { method: 'GET' });
+      if (!response.ok)
+        throw new Error('Falha ao consultar geofences');
+      const geofences = await response.json();
+
+      //Verificar se já existe uma âncora associada a este dispositivo
+      const activeAnchor = geofences.find((g) =>
+        g.attributes?.type === 'anchor' &&
+        g.name === `${device.name} - Âncora`
+      );
+
+      if (activeAnchor) {
+        console.log('Âncora já existe:', activeAnchor);
+        showSnackbar('Âncora já está ativa', 'Desativando a âncora atual...', 'info');
+        await handleDesactivateAnchor(activeAnchor.id);
+        return;
+      }
+
       const newGeofence = {
         name: `${device.name} - Âncora`,
-        area: `CIRCLE (${position.latitude} ${position.longitude}, 50)`, // Círculo de 50 metros de raio
-        attributes: { "color": "red" },
+        area: `CIRCLE (${position.latitude} ${position.longitude}, 50)`, // Raio de 50m
+        attributes: { type: 'anchor', color: 'red' },
       };
-      const response = await fetchOrThrow('/api/geofences', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newGeofence),
 
+      const createResponse = await fetchOrThrow('/api/geofences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newGeofence),
       });
 
-      if (response.ok) {
-        const geofence = await response.json();
-        const permissionResponse = await fetchOrThrow('/api/permissions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceId: device.id, geofenceId: geofence.id }),
-        });
+      if (!createResponse.ok) throw new Error('Falha ao criar geofence');
+      const geofence = await createResponse.json();
 
-        if (permissionResponse.ok) {
-          setAnchorGeofenceId(geofence.id); // Armazena o ID da geofence de âncora
-          refreshGeofences();
-          showSnackbar('Âncora Ativada', 'Comando enviado com sucesso!', 'error');
-        }
+      const permissionResponse = await fetchOrThrow('/api/permissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId: device.id, geofenceId: geofence.id }),
+      });
+
+      if (permissionResponse.ok) {
+        // Atualiza estado local e Redux
+        setAnchorGeofenceId(geofence.id);
+        dispatch(sessionActions.updatePositionGeofences({
+          deviceId,
+          geofenceId: geofence.id,
+        }));
+        // Atualiza Redux de geofences
+        refreshGeofences();
+        showSnackbar('Âncora Ativada', 'Comando enviado com sucesso!', 'error');
       }
     } catch (error) {
-      handleErrorAnchor();
       showSnackbar('Aviso', 'Comando não enviado!', 'warning');
+      handleErrorAnchor();
+      console.error('Erro ao ativar âncora:', error);
     }
-  });
+  };
 
-  const handleDeactivateAnchor = (async () => { // Função para desativar a âncora (remover a geofence)
 
-    if (!AnchorGeofenceId) return; // Certifica-se de que existe uma âncora para remover
+  const handleDesactivateAnchor = (async () => { // Função para desativar a âncora (remover a geofence)
+
 
     try {
       const response = await fetchOrThrow(`/api/geofences/${AnchorGeofenceId}`, {
@@ -241,27 +278,24 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
     }
   });
 
-  const handleErrorAnchor = (async () => { // Função para desativar a âncora em caso de erro de comando nao enviado (remover a geofence)
-
+  const handleErrorAnchor = async () => {
     if (!AnchorGeofenceId) return; // Certifica-se de que existe uma âncora para remover
 
     try {
       const response = await fetchOrThrow(`/api/geofences/${AnchorGeofenceId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       if (response.ok) {
-        setAnchorGeofenceId(null); // Remove o ID da geofence de âncora
+        setAnchorGeofenceId(null);
+        handleAnchorSendResume('engineResume');
         refreshGeofences();
       }
     } catch (error) {
-      setAnchorGeofenceId(null); // Remove o ID da geofence de âncora 
-      refreshGeofences();
+      console.error('Erro ao tentar limpar âncora após falha:', error);
     }
-  });
+  };
 
 
   const refreshGeofences = useCatchCallback(async () => {
@@ -300,6 +334,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
       showSnackbar('Bloqueio', 'Comando enviado com sucesso!', 'error');
     } catch (error) {
       showSnackbar('Aviso', 'Comando não enviado!', 'warning');
+
     }
   };
 
@@ -382,7 +417,6 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
     }
     setRemoving(false);
   });
-
 
   return (
     <>
@@ -474,7 +508,6 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
               </div>
 
-
               {position && (
                 <CardContent className={classes.content}>
                   <Table size="small" classes={{ root: classes.table }}>
@@ -506,7 +539,6 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
                   </Table>
                 </CardContent>
               )}
-
 
               <CardActions classes={{ root: classes.actions }} disableSpacing>
                 <Tooltip title={t('sharedExtra')}>
@@ -546,7 +578,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
                 <Tooltip title={t('sharedAnchorGeofence')}>
                   <IconButton
-                    onClick={AnchorGeofenceId ? handleDeactivateAnchor : handleActivateAnchor}
+                    onClick={AnchorGeofenceId ? handleDesactivateAnchor : handleActivateAnchor}
                     color={AnchorGeofenceId ? "error" : "primary"} disabled={disableActions || !position || deviceReadonly}>
                     <AnchorIcon />
                   </IconButton>
@@ -642,6 +674,12 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
         endpoint="devices"
         itemId={deviceId}
         onResult={(removed) => handleRemove(removed)}
+      />
+
+      <ConfirmAnchorDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onConfirm={confirmActivateAnchor}
       />
       <SnackbarComponent />
     </>

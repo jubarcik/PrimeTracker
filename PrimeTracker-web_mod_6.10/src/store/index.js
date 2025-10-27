@@ -11,6 +11,7 @@ import { maintenancesReducer as maintenances } from './maintenances';
 import { calendarsReducer as calendars } from './calendars';
 import throttleMiddleware from './throttleMiddleware';
 
+
 const reducer = combineReducers({
   errors,
   session,
@@ -21,6 +22,7 @@ const reducer = combineReducers({
   drivers,
   maintenances,
   calendars,
+
 });
 
 export { errorsActions } from './errors';

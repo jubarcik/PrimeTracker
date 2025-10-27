@@ -1,10 +1,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from 'maplibre-gl';
 import { googleProtocol } from 'maplibre-google-maps';
-import React, {
-  useRef, useLayoutEffect, useEffect, useState,
-  useMemo,
-} from 'react';
+import React, { useRef, useLayoutEffect, useEffect, useState,useMemo,} from 'react';
 import { useTheme } from '@mui/material';
 import { SwitcherControl } from '../switcher/switcher';
 import { useAttributePreference, usePreference } from '../../common/util/preferences';

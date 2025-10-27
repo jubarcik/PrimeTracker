@@ -46,6 +46,28 @@ const { reducer, actions } = createSlice({
         }
       });
     },
+
+    updatePositionGeofences(state, action) {
+      // payload esperado: { deviceId, geofenceId }
+      const { deviceId, geofenceId } = action.payload;
+
+      const currentPos = state.positions[deviceId];
+      if (!currentPos) {
+        // não tem posição pra esse device ainda, nada pra fazer
+        return;
+      }
+
+      // garante array
+      const currentGeofences = currentPos.geofenceIds || [];
+
+      // evita duplicar o mesmo ID
+      if (!currentGeofences.includes(geofenceId)) {
+        state.positions[deviceId] = {
+          ...currentPos,
+          geofenceIds: [...currentGeofences, geofenceId],
+        };
+      }
+    },
   },
 });
 

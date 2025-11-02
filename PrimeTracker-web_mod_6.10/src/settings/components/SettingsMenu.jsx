@@ -18,16 +18,14 @@ import CampaignIcon from '@mui/icons-material/Campaign';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from '../../common/components/LocalizationProvider';
-import {
-  useAdministrator, useManager, useRestriction,
-} from '../../common/util/permissions';
+import { useAdministrator, useManager, useRestriction, useDeviceReadonly, } from '../../common/util/permissions';
 import useFeatures from '../../common/util/useFeatures';
 import MenuItem from '../../common/components/MenuItem';
 
 const SettingsMenu = () => {
   const t = useTranslation();
+  const DeviceReadonly = useDeviceReadonly();
   const location = useLocation();
-
   const readonly = useRestriction('readonly');
   const admin = useAdministrator();
   const manager = useManager();
@@ -66,12 +64,15 @@ const SettingsMenu = () => {
               icon={<SmartphoneIcon />}
               selected={location.pathname.startsWith('/settings/device')}
             />
-            <MenuItem
-              title={t('sharedGeofences')}
-              link="/geofences"
-              icon={<CreateIcon />}
-              selected={location.pathname.startsWith('/settings/geofence')}
-            />
+            {admin && (
+              <MenuItem
+                title={t('sharedGeofences')}
+                link="/geofences"
+                icon={<CreateIcon />}
+                selected={location.pathname.startsWith('/settings/geofence')}
+              />)}
+
+
             {!features.disableGroups && (
               <MenuItem
                 title={t('settingsGroups')}

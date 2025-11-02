@@ -35,18 +35,17 @@ import AppleIcon from '@mui/icons-material/Apple';
 import MapIcon from '@mui/icons-material/Map';
 import NearMeIcon from '@mui/icons-material/NearMe';
 import StreetviewIcon from '@mui/icons-material/Streetview';
-import { useDeviceReadonly } from '../util/permissions';
+import { useAdministrator, useRestriction, useDeviceReadonly, } from '../util/permissions';
 import { useTranslation } from './LocalizationProvider';
 import { devicesActions } from '../../store';
 import { geofencesActions } from '../../store';
-import { sessionActions } from '../../store';
-import ConfirmAnchorDialog from './ConfirmAnchorDialog';
 import { useCatch, useCatchCallback } from '../../reactHelper';
 import { useAttributePreference } from '../util/preferences';
-import { useRestriction } from '../util/permissions';
+
 import RemoveDialog from './RemoveDialog';
 import fetchOrThrow from '../util/fetchOrThrow';
 import useSnackbar from './useSnackbar';
+import AnchorDialog from './AnchorDialog';
 import PositionValue from './PositionValue';
 import usePositionAttributes from '../attributes/usePositionAttributes';
 
@@ -139,6 +138,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
   const dispatch = useDispatch();
   const t = useTranslation();
   const deviceReadonly = useDeviceReadonly();
+  const admin = useAdministrator();
   const device = useSelector((state) => state.devices.items[deviceId]);
   const deviceImage = device?.attributes?.deviceImage;
   const disableReports = useRestriction('disableReports');
@@ -190,10 +190,8 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
     setDialogOpen(true);
   };
 
-  const confirmActivateAnchor = async () => {
+  const confirmActivateAnchor = async ({ color, radius }) => {
     setDialogOpen(false);
-
-
     try {
       //Buscar todas as geofences cadastradas
       const response = await fetch('/api/geofences', { method: 'GET' });
@@ -216,8 +214,8 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
       const newGeofence = {
         name: `${device.name} - Âncora`,
-        area: `CIRCLE (${position.latitude} ${position.longitude}, 50)`, // Raio de 50m
-        attributes: { type: 'anchor', color: 'red' },
+        area: `CIRCLE (${position.latitude} ${position.longitude}, ${radius})`,
+        attributes: { type: 'anchor', color },
       };
 
       const createResponse = await fetchOrThrow('/api/geofences', {
@@ -235,18 +233,14 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
         body: JSON.stringify({ deviceId: device.id, geofenceId: geofence.id }),
       });
 
-      if (permissionResponse.ok) {
-        // Atualiza estado local e Redux
-        setAnchorGeofenceId(geofence.id);
-        dispatch(sessionActions.updatePositionGeofences({
-          deviceId,
-          geofenceId: geofence.id,
-        }));
-        // Atualiza Redux de geofences
-        refreshGeofences();
-        showSnackbar('Âncora Ativada', 'Comando enviado com sucesso!', 'error');
-      }
-    } catch (error) {
+      if (!permissionResponse.ok) throw new Error('Falha ao associar geofence');
+      console.info('[Anchor] Geofence associada com sucesso ao dispositivo', device.id);
+
+      setAnchorGeofenceId(geofence.id);
+      refreshGeofences();
+      showSnackbar('Âncora Ativada', 'Comando enviado com sucesso!', 'error');
+    }
+    catch (error) {
       showSnackbar('Aviso', 'Comando não enviado!', 'warning');
       handleErrorAnchor();
       console.error('Erro ao ativar âncora:', error);
@@ -255,8 +249,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
 
   const handleDesactivateAnchor = (async () => { // Função para desativar a âncora (remover a geofence)
-
-
+    if (!AnchorGeofenceId) return; // Certifica-se de que existe uma âncora para remover
     try {
       const response = await fetchOrThrow(`/api/geofences/${AnchorGeofenceId}`, {
         method: 'DELETE',
@@ -280,7 +273,6 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
   const handleErrorAnchor = async () => {
     if (!AnchorGeofenceId) return; // Certifica-se de que existe uma âncora para remover
-
     try {
       const response = await fetchOrThrow(`/api/geofences/${AnchorGeofenceId}`, {
         method: 'DELETE',
@@ -309,13 +301,10 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
     }
 
   }, [dispatch]);
-
   /** Final do bloco de funçoes da Âncora*/
 
 
   /** Inicio bloco de comandos de envio engineStop engineResume*/
-
-
   const handleSendStop = async (command) => {
     try {
       const response = await fetchOrThrow(`/api/commands/send`, {
@@ -605,7 +594,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
           <MenuItem
             style={{ display: 'flex', alignItems: 'center' }}
             onClick={() => navigate(`/settings/device/${deviceId}/command`)}
-            disabled={disableActions || !position || deviceReadonly}
+            disabled={disableActions || !admin || deviceReadonly}
 
           >
             <ArrowCircleUpIcon style={{ width: 20, height: 20, marginRight: 8 }} />
@@ -613,13 +602,16 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
 
           </MenuItem>
 
-          <MenuItem
-            style={{ display: 'flex', alignItems: 'center' }}
-            onClick={handleGeofence}
-          >
-            <ShareLocationIcon style={{ width: 20, height: 20, marginRight: 8 }} />
-            {t('sharedCreateGeofence')}
-          </MenuItem>
+          
+            <MenuItem
+              style={{ display: 'flex', alignItems: 'center' }}
+              onClick={handleGeofence}
+              disabled={disableActions || !admin || deviceReadonly}
+
+            >
+              <ShareLocationIcon style={{ width: 20, height: 20, marginRight: 8 }} />
+              {t('sharedCreateGeofence')}
+            </MenuItem>
 
           <MenuItem
             component="a"
@@ -676,7 +668,7 @@ const StatusCard = ({ deviceId, position, onClose, disableActions, desktopPaddin
         onResult={(removed) => handleRemove(removed)}
       />
 
-      <ConfirmAnchorDialog
+      <AnchorDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onConfirm={confirmActivateAnchor}

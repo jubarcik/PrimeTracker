@@ -274,7 +274,7 @@ const LoginPage = () => {
                 {t('loginRegister')}
               </Link>
             )}
-            {emailEnabled && (
+            {(
               <Link
                 onClick={() => navigate('/reset-password')}
                 className={classes.link}

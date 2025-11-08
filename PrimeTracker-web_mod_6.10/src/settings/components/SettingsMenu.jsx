@@ -15,12 +15,18 @@ import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import HelpIcon from '@mui/icons-material/Help';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import GavelIcon from '@mui/icons-material/Gavel';
 import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import { useTranslation } from '../../common/components/LocalizationProvider';
 import { useAdministrator, useManager, useRestriction, useDeviceReadonly, } from '../../common/util/permissions';
 import useFeatures from '../../common/util/useFeatures';
 import MenuItem from '../../common/components/MenuItem';
+import ContactDialog from '../../common/components/ContactDialog';
+
+
 
 const SettingsMenu = () => {
   const t = useTranslation();
@@ -32,8 +38,10 @@ const SettingsMenu = () => {
   const userId = useSelector((state) => state.session.user.id);
   const supportLink = useSelector((state) => state.session.server.attributes.support);
   const billingLink = useSelector((state) => state.session.user.attributes.billingLink);
-
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const termsUrl = useSelector((state) => state.session.server.attributes.termsUrl);
   const features = useFeatures();
+
 
   return (
     <>
@@ -121,6 +129,19 @@ const SettingsMenu = () => {
                 selected={location.pathname.startsWith('/settings/command')}
               />
             )}
+            <MenuItem
+              title={t('sharedContact')}
+              icon={<SupportAgentIcon />}
+              selected={false}
+              onClick={() => setContactDialogOpen(true)}
+            />
+            <MenuItem
+              title={t('userTerms')}
+              icon={<GavelIcon />}
+              selected={false}
+              link={termsUrl}
+            />
+
           </>
         )}
         {billingLink && (
@@ -165,6 +186,12 @@ const SettingsMenu = () => {
           </List>
         </>
       )}
+
+      <ContactDialog
+        open={contactDialogOpen}
+        onClose={() => setContactDialogOpen(false)}
+      />
+
     </>
   );
 };

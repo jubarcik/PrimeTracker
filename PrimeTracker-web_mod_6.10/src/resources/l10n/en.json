@@ -109,6 +109,8 @@
     "sharedQrCode": "QR Code",
     "sharedActionType": "Action",
     "sharedQbjectType": "Object",
+    "sharedAnchorGeofence": "Ânchor",
+    "sharedContact":"Contact",
     "calendarSimple": "Simple",
     "calendarRecurrence": "Recurrence",
     "calendarOnce": "Once",

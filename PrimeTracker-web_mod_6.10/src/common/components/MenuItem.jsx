@@ -8,10 +8,19 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
-const MenuItem = ({ title, link, icon, selected }) => {
+const MenuItem = ({ title, link, icon, selected, onClick }) => {
   const { classes } = useStyles();
+
+  const buttonProps = link
+    ? { component: Link, to: link }   // ✅ navega
+    : { component: 'button', type: 'button' }; // ✅ executa onClick sem navegação
+
   return (
-    <ListItemButton key={link} component={Link} to={link} selected={selected}>
+    <ListItemButton
+      {...buttonProps}
+      selected={selected}
+      onClick={onClick}   // ✅ agora funciona sempre
+    >
       <ListItemIcon>{icon}</ListItemIcon>
       <ListItemText primary={title} className={classes.menuItemText} />
     </ListItemButton>

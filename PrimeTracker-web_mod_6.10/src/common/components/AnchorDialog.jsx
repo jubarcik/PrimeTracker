@@ -147,11 +147,6 @@ const AnchorDialog = ({ open, onClose, onConfirm }) => {
               Raio da Âncora:
             </Typography>
 
-            {/* Seleção de Raio */}
-            <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, ml: 1 }}>
-              Raio da Âncora:
-            </Typography>
-
             <ToggleButtonGroup
               value={selectedRadius}
               exclusive

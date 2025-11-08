@@ -110,6 +110,7 @@
     "sharedActionType": "Ação",
     "sharedQbjectType": "Objeto",
     "sharedAnchorGeofence": "Âncora",
+    "sharedContact":"Contato",
     "calendarSimple": "Simples",
     "calendarRecurrence": "Recorrência",
     "calendarOnce": "Uma vez",

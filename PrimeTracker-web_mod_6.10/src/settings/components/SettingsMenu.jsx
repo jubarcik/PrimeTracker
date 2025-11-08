@@ -139,7 +139,7 @@ const SettingsMenu = () => {
               title={t('userTerms')}
               icon={<GavelIcon />}
               selected={false}
-              link={termsUrl}
+              link={termsUrl.startsWith('http') ? termsUrl : `https://${termsUrl}`}
             />
 
           </>

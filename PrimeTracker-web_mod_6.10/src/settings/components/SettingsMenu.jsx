@@ -141,7 +141,6 @@ const SettingsMenu = () => {
               selected={false}
               link={termsUrl.startsWith('http') ? termsUrl : `https://${termsUrl}`}
             />
-
           </>
         )}
         {billingLink && (

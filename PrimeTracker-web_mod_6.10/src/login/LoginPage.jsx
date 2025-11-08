@@ -9,6 +9,7 @@ import VpnLockIcon from '@mui/icons-material/VpnLock';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +17,7 @@ import { sessionActions } from '../store';
 import { useLocalization, useTranslation } from '../common/components/LocalizationProvider';
 import LoginLayout from './LoginLayout';
 import usePersistedState from '../common/util/usePersistedState';
-import {
-  generateLoginToken, handleLoginTokenListeners, nativeEnvironment, nativePostMessage,
+import {generateLoginToken, handleLoginTokenListeners, nativeEnvironment, nativePostMessage,
 } from '../common/components/NativeInterface';
 import LogoImage from './LogoImage';
 import { useCatch } from '../reactHelper';
@@ -50,6 +50,23 @@ const useStyles = makeStyles()((theme) => ({
   },
   link: {
     cursor: 'pointer',
+  },
+
+  whatsappFixed: {
+    position: 'fixed',
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+    backgroundColor: theme.palette.primary.main,
+    color: '#fff',
+    padding: theme.spacing(1),
+    borderRadius: theme.spacing(4),
+    boxShadow: theme.shadows[4],
+    cursor: 'pointer',
+    textDecoration: 'none',
+    zIndex: 2000,
   },
 }));
 
@@ -271,6 +288,19 @@ const LoginPage = () => {
         )}
       </div>
       <QrCodeDialog open={showQr} onClose={() => setShowQr(false)} />
+
+      <Link
+        href="https://wa.me/5541998862427"
+        target="_blank"
+        rel="noopener"
+        className={classes.whatsappFixed}
+      >
+        <WhatsAppIcon />
+        <span style={{ fontSize: 14, fontWeight: 500 }}>
+          (41) 99886-2427
+        </span>
+      </Link>
+
       <Snackbar
         open={!!announcement && !announcementShown}
         message={announcement}
